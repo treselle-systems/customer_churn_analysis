@@ -1,0 +1,72 @@
+churn<-read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv")
+
+library(ggplot2)
+library(dplyr)
+library(plotly)
+
+
+#1. Análise exploratória
+
+summary(churn)
+#temos 11 NAs em TotalCharges
+
+#tratando os NAs em TotalCharge, multiplicando o tempo de contrato pelo custo mensal
+churn$TotalCharges2<-churn$MonthlyCharges*churn$tenure
+churn$TotalCharges_2<-ifelse(is.na(churn$TotalCharges),churn$TotalCharges2,churn$TotalCharges)
+churn$TotalCharges2<-NULL
+churn$NAs<-NULL
+churn$TotalCharges<-NULL
+churn <- churn[, c(1:19,21,20)]
+
+#percentual de churn
+prop.table(table(churn$Churn))
+#26,5% de churn rate
+
+#ocorrências de churn por tempo de contrato
+churn_tempo<-churn %>%
+  filter(Churn=="Yes") %>%    
+  group_by(tenure) %>%
+  summarize(qtde=n()) %>%
+  arrange(tenure)
+View(churn_tempo)
+
+churn_bar<-plot_ly(x = ~churn_tempo$tenure, y = ~churn_tempo$qtde, 
+        type = "bar", orientation ="v", color=I("orange"))
+churn_bar
+
+churn_tempo$tenure_anual<-ifelse(churn_tempo$tenure<13, 1,
+                                 ifelse(churn_tempo$tenure>12 & churn_tempo<25,2,
+                                        ifelse(churn_tempo$tenure>24 & churn_tempo<37,3,
+                                               ifelse(churn_tempo$tenure>36 & churn_tempo<49,4,
+                                                      ifelse(churn_tempo$tenure>48 & churn_tempo<61,5,
+                                                             ifelse(churn_tempo$tenure>60 & churn_tempo<73,6,0))))))
+churn_anual<-churn_tempo %>%
+  group_by(tenure_anual) %>%
+  summarise(qtde2=sum(qtde)) %>%
+  arrange(tenure_anual)
+View(churn_anual)
+churnanual_bar<-plot_ly(x = ~churn_anual$tenure_anual, y = ~churn_anual$qtde2, 
+                        type = "bar", orientation ="v", color=I("orange"))
+churnanual_bar
+#gráfico de frequência de churn por mês, indicando que quanto maior o tempo, menor a probabilidade de churn (?)
+
+
+#quantidade de clientes por tempo de contrato
+nochurn_tempo<-churn %>%
+  filter(Churn=="No") %>%    
+  group_by(tenure) %>%
+  summarize(qtde=n()) %>%
+  arrange(tenure)
+View(nochurn_tempo)
+
+nochurn_bar<-plot_ly(x = ~nochurn_tempo$tenure, y = ~nochurn_tempo$qtde, 
+           type = "bar", orientation ="v", color=I("orange"))
+nochurn_bar
+
+summary(nochurn_tempo$qtde)
+
+nochurn_boxplot<-boxplot(nochurn_tempo$qtde)
+nochurn_boxplot<-plot_ly(nochurn_tempo, y= ~qtde, type = "box")
+nochurn_boxplot
+#gráfico de quantidade de clientes por mês, indicando que a quantidade mediana de clientes é de 70 
+#e está bem distribuida em torno da média
