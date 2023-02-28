@@ -19,17 +19,17 @@ missmap(telecomDataframe,col=c("yellow","red"))
 
 # create new column "tenure_interval" from the tenure column
 group_tenure <- function(tenure){
-    if (tenure >= 0 && tenure <= 6){
+    if (tenure >= 0 & tenure <= 6){
         return('0-6 Month')
-    }else if(tenure > 6 && tenure <= 12){
+    }else if(tenure > 6 & tenure <= 12){
         return('6-12 Month')
-    }else if (tenure > 12 && tenure <= 24){
+    }else if (tenure > 12 & tenure <= 24){
         return('12-24 Month')
-    }else if (tenure > 24 && tenure <=36){
+    }else if (tenure > 24 & tenure <=36){
         return('24-36 Month')
-    }else if (tenure > 36 && tenure <=48){
+    }else if (tenure > 36 & tenure <=48){
         return('36-48 Month')
-    }else if (tenure > 48 && tenure <= 62){
+    }else if (tenure > 48 & tenure <= 62){
         return('48-62 Month')
     }else if (tenure > 62){
         return('> 62 Month')
@@ -75,7 +75,7 @@ telecomDataframe$StreamingMovies <- as.factor(telecomDataframe$StreamingMovies)
 telecomDataframe <- na.omit(telecomDataframe)
 
 # set the seed it will output same output when ever the model is executed
-set.seed(123)
+set.seed(55)
 
 # sample the input data with 70% for training and 30% for testing
 sample <- sample.split(telecomDataframe$Churn,SplitRatio=0.70)
